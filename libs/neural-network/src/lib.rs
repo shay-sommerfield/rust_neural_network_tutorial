@@ -57,17 +57,38 @@ impl Neuron {
     fn propagate(&self, inputs: &[f32]) -> f32 {
         let mut output = 0.0;
         
-        for i in 0..inputs.len() {
-            output += inputs[i]*self.weights[i]
-        }
+        // for i in 0..inputs.len() {
+        //     output += inputs[i]*self.weights[i]
+        // }
 
-        output += self.bias;
+        // same as ^^^
 
-        if output > 0.0 {
-            output
-        } else {
-            0.0
-        }
+        // increases speed becuase it prevents a bounds check from index access 
+        //ie checking if length of x is >= 100 for x[100]
+        // for (&input,&weight) in inputs.iter().zip(&self.weights){
+        //     output += input*weight
+        // }
+
+        // same as ^^^
+
+        let output = inputs
+            .iter()
+            .zip(&self.weights)
+            .map(|(input, weight)| input * weight)
+            .sum::<f32>(); // explicitely states that the output should be <f32>
+
+        //output += self.bias;
+
+        // if output > 0.0 {
+        //     output
+        // } else {
+        //     0.0
+        // }
+        
+        // same as ^^^
+        //output.max(0.0)
+
+        (self.bias + output).max(0.0)
         
     }
 }
