@@ -2,4 +2,4 @@ https://pwy.io/en/posts/learning-to-fly-pt1/
 
 
 left off here:
-    https://pwy.io/en/posts/learning-to-fly-pt2/#coding-new
+    https://pwy.io/en/posts/learning-to-fly-pt2/#testing
