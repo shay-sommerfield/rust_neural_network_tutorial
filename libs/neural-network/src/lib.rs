@@ -6,12 +6,52 @@ mod tests {
     }
 }
 
+use rand::Rng;
 
+// number of neurons per per layer
+pub struct LayerTopology {
+    pub neurons: usize,
+}
 
 pub struct Network {
     layers: Vec<Layer>,
 }
+
+
 impl Network {
+
+    pub fn random(layers: &[LayerTopology]) -> Self {
+
+        // Network with just one layer is technically doable, but doesn't
+        // make much sense:
+        assert!(layers.len() > 1);
+        
+        //let mut built_layers = Vec::new();
+
+        // for i in 0..(layers.len() - 1) {
+        //     let input_neurons = layers[i].neurons;
+        //     let output_neurons = layers[i + 1].neurons;
+    
+        //     built_layers.push(Layer::random(
+        //         input_neurons,
+        //         output_neurons,
+        //     ));
+        // }
+    
+        // Self { layers: built_layers }
+
+        // switch to iterators. same as above ^^^
+        let layers = layers
+            .windows(2)
+            .map(|layers| {
+                Layer::random(layers[0].neurons, layers[1].neurons) // 0 must represent current layer and 1 next layer
+            })
+            .collect();
+
+            Self{layers}
+
+    }
+
     fn propagate(&self, mut inputs: Vec<f32>) -> Vec<f32> {
 
         // for layer in &self.layers {
@@ -30,6 +70,25 @@ struct Layer {
     neurons: Vec<Neuron>,
 }
 impl Layer {
+    pub fn random(input_neurons: usize, output_neurons: usize) -> Self{
+    
+    //     let mut neurons = Vec::new(); // empty neuron vector
+
+    //     for _ in 0..output_neurons {
+    //         neurons.push(Neuron::random(input_neurons)); // create a new randomized neruon and push it to the list
+    //     }
+
+    // same as above ^^^
+    let neurons = (0..output_neurons)  // create an iterator
+        .map(|_| Neuron::random(input_neurons)) // need to figure out what map does, but put a new neuron in it's vector place
+        .collect(); // return the vector
+
+        // the author noted theat the map function above could have been this: .map(|output_neuron_id| Neuron::random(input))
+        // but since we don't use the output_neuron_id, we can just use |_|, called toilet closure
+        // we could also have used _output_neuron_id, which would indicate that it isn't used. 
+    Self { neurons } // assign neuron values to this layer? 
+    }
+    
     fn propagate(&self, inputs: Vec<f32>) -> Vec<f32> {
         //let mut outputs = Vec::with_capacity(self.neurons.len());
 
@@ -54,6 +113,16 @@ struct Neuron {
 }
 
 impl Neuron {
+    pub fn random(output_size: usize) -> Self {
+        let mut rng = rand::thread_rng();
+        let bias = rng.gen_range(-1.0..=1.0);
+
+        let weights = (0..output_size)
+        .map(|_| rng.gen_range(-1.0..=1.0))
+        .collect();
+
+        Self { bias, weights }
+    }
     fn propagate(&self, inputs: &[f32]) -> f32 {
         let mut output = 0.0;
         
@@ -92,3 +161,4 @@ impl Neuron {
         
     }
 }
+
