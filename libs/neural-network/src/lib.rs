@@ -1,11 +1,3 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
-
 use rand::Rng;
 
 // number of neurons per per layer
@@ -20,7 +12,7 @@ pub struct Network {
 
 impl Network {
 
-    pub fn random(layers: &[LayerTopology]) -> Self {
+    pub fn random(rng: &mut dyn rand::RngCore,layers: &[LayerTopology]) -> Self {
 
         // Network with just one layer is technically doable, but doesn't
         // make much sense:
@@ -44,7 +36,7 @@ impl Network {
         let layers = layers
             .windows(2)
             .map(|layers| {
-                Layer::random(layers[0].neurons, layers[1].neurons) // 0 must represent current layer and 1 next layer
+                Layer::random(rng,layers[0].neurons, layers[1].neurons) // 0 must represent current layer and 1 next layer
             })
             .collect();
 
@@ -70,7 +62,7 @@ struct Layer {
     neurons: Vec<Neuron>,
 }
 impl Layer {
-    pub fn random(input_neurons: usize, output_neurons: usize) -> Self{
+    pub fn random(rng: &mut dyn rand::RngCore,input_neurons: usize, output_neurons: usize) -> Self{
     
     //     let mut neurons = Vec::new(); // empty neuron vector
 
@@ -80,7 +72,7 @@ impl Layer {
 
     // same as above ^^^
     let neurons = (0..output_neurons)  // create an iterator
-        .map(|_| Neuron::random(input_neurons)) // need to figure out what map does, but put a new neuron in it's vector place
+        .map(|_| Neuron::random(rng,input_neurons)) // need to figure out what map does, but put a new neuron in it's vector place
         .collect(); // return the vector
 
         // the author noted theat the map function above could have been this: .map(|output_neuron_id| Neuron::random(input))
@@ -113,8 +105,10 @@ struct Neuron {
 }
 
 impl Neuron {
-    pub fn random(output_size: usize) -> Self {
-        let mut rng = rand::thread_rng();
+    pub fn random(rng: &mut dyn rand::RngCore,
+        output_size: usize) -> Self {
+            // removed because we now input rng instead
+        // let mut rng = rand::thread_rng();
         let bias = rng.gen_range(-1.0..=1.0);
 
         let weights = (0..output_size)
@@ -162,3 +156,27 @@ impl Neuron {
     }
 }
 
+// testing our randomizing algorithm
+#[cfg(test)]
+mod tests{
+    use super::*;
+
+    mod random{
+        use super::*;
+        use rand::SeedableRng;
+
+        use rand_chacha::ChaCha8Rng;
+        #[test]
+        fn test(){
+            // Because we always use the same seed our rng in here
+            // will always return the same set of values
+            let mut rng = ChaCha8Rng::from_seed(Default::default());
+            let neuron = Neuron::random(&mut rng,4);
+
+            assert_eq!(neuron.bias,0.0);
+            assert_eq!(neuron.weights,&[0.0,0.0,0.0,0.0]);
+    }
+
+    }
+    
+}
