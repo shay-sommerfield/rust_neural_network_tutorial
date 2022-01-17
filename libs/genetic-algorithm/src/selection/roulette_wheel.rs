@@ -6,9 +6,9 @@ pub struct RouletteWheelSelection;
 impl SelectionMethod for RouletteWheelSelection{
     fn select<'a, I>(
         &self,
-        rng: &mut dyn RngCore,
+        rng: &mut dyn RngCore, // dyn imply dynamic dispatch, without is static dispatch. IE we don't know what exactly what it will look like, like a lambda function in python
         population &'a [I],
-    ) -> &'a I
+    ) -> &'a I                 // 'a annotates the output's lifetime
     where
         I:Individual,
         {
