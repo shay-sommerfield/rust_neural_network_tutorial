@@ -159,13 +159,13 @@ impl Neuron {
 // testing our randomizing algorithm
 #[cfg(test)]
 mod tests{
-    use super::*;
+    use super::*; // access used/created  everything above the module
 
     mod random{
         use super::*;
         use rand::SeedableRng;
-
         use rand_chacha::ChaCha8Rng;
+
         #[test]
         fn test(){
             // Because we always use the same seed our rng in here
@@ -173,10 +173,59 @@ mod tests{
             let mut rng = ChaCha8Rng::from_seed(Default::default());
             let neuron = Neuron::random(&mut rng,4);
 
-            assert_eq!(neuron.bias,-0.6255188);
-            assert_eq!(neuron.weights,&[0.67383957, 0.8181262, 0.26284897, 0.5238807]);
+            approx::assert_relative_eq!(neuron.bias,-0.6255188);
+            approx::assert_relative_eq!(neuron.weights.as_slice(),&[0.67383957, 0.8181262, 0.26284897, 0.5238807].as_ref());
     }
 
     }
+
+    mod propagate{
+        use super::*;
+
+        #[test]
+        fn test(){
+            let neuron = Neuron {
+                bias: 0.5,
+                weights: vec![-0.3, 0.8],
+            };
+
+            // Ensures `.max()` (our ReLU) works:
+            approx::assert_relative_eq!(
+                neuron.propagate(&[-10.0, -10.0]),
+                0.0,
+            );
+            
+            // `0.5` and `1.0` chosen by a fair dice roll:
+            approx::assert_relative_eq!(
+                neuron.propagate(&[0.5, 1.0]),
+                (-0.3 * 0.5) + (0.8 * 1.0) + 0.5,
+            );
+            // We could've written `1.15` right away, but showing the entire
+            // formula makes our intentions clearer
+        }
+    }
+
+    // written by me (shay sommerfield)
+    mod layer{
+        use super::*;
+        use rand::SeedableRng;
+        use rand_chacha::ChaCha8Rng;
+
+        #[test]
+        fn random_test(){
+            let mut rng = ChaCha8Rng::from_seed(Default::default());
+            let layer = Layer::random(&mut rng, 1, 1);
+
+            approx::assert_relative_eq!(layer.neurons[0].bias,-0.6255188);
+            approx::assert_relative_eq!(layer.neurons[0].weights.as_slice(),&[0.67383957].as_ref());
+        }
+
+        // #[test]
+        // fn propagate_test(){
+        //     let layer_top = LayerTopology()
+        //     let layer = Layer
+        // }
+    }
+    
     
 }

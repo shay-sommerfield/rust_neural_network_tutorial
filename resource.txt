@@ -3,3 +3,7 @@ https://pwy.io/en/posts/learning-to-fly-pt1/
 
 left off here:
     https://pwy.io/en/posts/learning-to-fly-pt2/#testing
+
+
+Things to read for this code:
+    What every programmer should know about floating point numbers: https://floating-point-gui.de/
